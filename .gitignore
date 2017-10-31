@@ -4,6 +4,9 @@
 # CMake
 build/
 
+# VSCode
+.vscode/
+
 # Prerequisites
 *.d
 
