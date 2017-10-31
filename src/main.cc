@@ -11,7 +11,8 @@
 void ShowHelp(const Args &args) {
     std::cout << "BTCAddrGen version 0.1" << std::endl;
     std::cout << "Usage:" << std::endl;
-    std::cout << "  ./btcaddrgen" << std::endl;
+    std::cout << "  ./btcaddrgen" << std::endl << std::endl;
+    std::cout << "Arguments:" << std::endl;
     std::cout << args.GetArgsHelpString() << std::endl;
 }
 
