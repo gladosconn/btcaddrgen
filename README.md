@@ -10,6 +10,8 @@ If you like this project, please make a donation! `1GRhq4EpFqXyLpwiZRw1oYDMwNoNB
 
 # How to use?
 
+I do not provide compiled binaries, you need compile source by following those steps below.
+
 ## Requirements.
 
 * You need install library [secp256k1](https://github.com/bitcoin-core/secp256k1.git)`secp256k1`
