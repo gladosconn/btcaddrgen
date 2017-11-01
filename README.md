@@ -2,10 +2,10 @@
 
 This is a Bitcoin Address Generator! You can use this tool to generate new bitcoin address offline, and import private key to your bitcoin wallet or publish the public key to other people to ask for bitcoin, That's very useful to making money right?
 
-If you like this program, please make a donation! `Bitcoin: 1KdmnoWbqHxqoER9ADLuw7FndRDsLJ33KZ`
-
 * You can import the generated private key to bitcoin wallet.
 * I'm going to make an easy to use C++ library to generate bitcoin key and sign.
+
+If you like this program, please make a donation! `1KdmnoWbqHxqoER9ADLuw7FndRDsLJ33KZ`
 
 # How to use?
 
@@ -13,7 +13,7 @@ If you like this program, please make a donation! `Bitcoin: 1KdmnoWbqHxqoER9ADLu
 
 * You need install library [secp256k1](https://github.com/bitcoin-core/secp256k1.git)`secp256k1`
 * You need install library OpenSSL
-* Clone and install it from `https://github.com/bitcoin-core/secp256k1.git`
+* You need a C++ compiler, gcc 4.7+ or clang 3+
 
 ## Compile
 
