@@ -10,7 +10,14 @@ Yes, nothing more.
 
 ## Requirements.
 
-You need install `secp256k1` library before you compile source.
-Clone and install it from `https://github.com/bitcoin-core/secp256k1.git`
+* You need install `secp256k1` library before you compile source.
+* Clone and install it from `https://github.com/bitcoin-core/secp256k1.git`
 
 ## Compile
+
+* Run in console `mkdir build && cd build && cmake .. && make -j3`
+
+## Run
+
+* Run in console `build/btcaddrgen`
+* It will show the new address generated with private key (public key also displayed).
