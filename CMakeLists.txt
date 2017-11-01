@@ -7,9 +7,15 @@ add_definitions(-std=c++11)
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 find_package(Boost REQUIRED program_options)
+find_package(OpenSSL REQUIRED)
+
+include_directories(
+    "./"
+    ${OPENSSL_INCLUDE_DIR}
+)
 
 file(GLOB src "./src/*.cc")
 
 add_executable(btcaddrgen ${src})
 
-target_link_libraries(btcaddrgen ${Boost_LIBRARIES})
+target_link_libraries(btcaddrgen ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES})
