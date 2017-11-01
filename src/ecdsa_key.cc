@@ -86,34 +86,11 @@ Key::Key(KeyManager &key_man) : key_man_(key_man) {
   do {
     rnd::GetStrongRandBytes(key_.data(), key_.size());
   } while (!VerifyKey(key_));
-  priv_key_ = CalcPrivateKey();
-  pub_key_ = CalcPublicKey();
 }
 
-KeyData Key::get_priv_key() const { return priv_key_; }
+KeyData Key::get_key() const { return key_; }
 
-KeyData Key::get_pub_key() const { return pub_key_; }
-
-bool Key::VerifyKey(const KeyData &key) {
-  return secp256k1_ec_seckey_verify(key_man_.get_context_sign(), key.data());
-}
-
-KeyData Key::CalcPrivateKey() {
-  KeyData privkey;
-  int ret;
-  size_t privkeylen;
-  privkey.resize(PRIVATE_KEY_SIZE);
-  privkeylen = PRIVATE_KEY_SIZE;
-  ret = ec_privkey_export_der(
-      key_man_.get_context_sign(), (unsigned char *)privkey.data(), &privkeylen,
-      key_.data(),
-      compressed_ ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED);
-  assert(ret);
-  privkey.resize(privkeylen);
-  return privkey;
-}
-
-KeyData Key::CalcPublicKey() {
+KeyData Key::CalculatePublicKey(bool compressed) const {
   secp256k1_pubkey pubkey;
   size_t clen = PUBLIC_KEY_SIZE;
   KeyData result;
@@ -123,8 +100,13 @@ KeyData Key::CalcPublicKey() {
   assert(ret);
   secp256k1_ec_pubkey_serialize(
       key_man_.get_context_sign(), result.data(), &clen, &pubkey,
-      compressed_ ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED);
+      compressed ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED);
+  result.resize(clen);
   return result;
+}
+
+bool Key::VerifyKey(const KeyData &key) {
+  return secp256k1_ec_seckey_verify(key_man_.get_context_sign(), key.data());
 }
 
 } // namespace ecdsa

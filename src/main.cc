@@ -29,9 +29,9 @@ int main(int argc, const char *argv[]) {
   // Trying to generate a new key pair.
   auto &man = ecdsa::KeyManager::get_instance();
   auto key = man.NewKey();
-  std::cout << "public key: " << base58::EncodeBase58(key.get_pub_key())
-            << std::endl;
-  std::cout << "private key: " << base58::EncodeBase58(key.get_priv_key())
+  std::cout << "public key: "
+            << base58::EncodeBase58(key.CalculatePublicKey(true)) << std::endl;
+  std::cout << "private key: " << base58::EncodeBase58(key.get_key())
             << std::endl;
 
   return 0;
