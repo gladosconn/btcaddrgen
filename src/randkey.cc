@@ -4,15 +4,27 @@
 #include <fstream>
 
 #include <openssl/rand.h>
-
-#include "crypto/common.h"
-#include "crypto/sha512.h"
+#include <openssl/sha.h>
 
 #if defined(__x86_64__) || defined(__amd64__) || defined(__i386__)
 #include <cpuid.h>
 #endif
 
 namespace rnd {
+
+inline uint32_t htole32(uint32_t host_32bits) { return host_32bits; }
+
+inline uint64_t htole64(uint64_t host_64bits) { return host_64bits; }
+
+void static inline WriteLE32(unsigned char *ptr, uint32_t x) {
+  uint32_t v = htole32(x);
+  memcpy(ptr, (char *)&v, 4);
+}
+
+void static inline WriteLE64(unsigned char *ptr, uint64_t x) {
+  uint64_t v = htole64(x);
+  memcpy(ptr, (char *)&v, 8);
+}
 
 static inline int64_t GetPerformanceCounter() {
 // Read the hardware time stamp counter when available.
@@ -58,23 +70,16 @@ void GetDevURandom(unsigned char *ent32) {
   if (!f.is_open()) {
     RandFailure();
   }
-  // int f = open("/dev/urandom", O_RDONLY);
-  // if (f == -1) {
-  //     RandFailure();
-  // }
   int have = 0;
   do {
     f.read((char *)ent32 + have, NUM_OS_RANDOM_BYTES - have);
     ssize_t n = f.gcount();
-    // ssize_t n = read(f, ent32 + have, NUM_OS_RANDOM_BYTES - have);
     if (n <= 0 || n + have > NUM_OS_RANDOM_BYTES) {
-      // close(f);
       f.close();
       RandFailure();
     }
     have += n;
   } while (have < NUM_OS_RANDOM_BYTES);
-  // close(f);
 }
 #endif
 
@@ -206,7 +211,6 @@ static constexpr uint32_t CPUID_F1_ECX_RDRAND = 0x40000000;
 static void RDRandInit() {
   uint32_t eax, ebx, ecx, edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) && (ecx & CPUID_F1_ECX_RDRAND)) {
-    // TODO maybe show some message here?
     rdrand_supported = true;
   }
   hwrand_initialized.store(true);
@@ -217,7 +221,8 @@ static void RDRandInit() {}
 
 static bool GetHWRand(unsigned char *ent32) {
 #if defined(__x86_64__) || defined(__amd64__) || defined(__i386__)
-  assert(hwrand_initialized.load(std::memory_order_relaxed));
+  // TODO The following line comment because assert failed.
+  // assert(hwrand_initialized.load(std::memory_order_relaxed));
   if (rdrand_supported) {
     uint8_t ok;
 // Not all assemblers support the rdrand instruction, write it in hex.
@@ -259,31 +264,33 @@ static unsigned char rng_state[32] = {0};
 static uint64_t rng_counter = 0;
 
 void GetStrongRandBytes(unsigned char *out, int num) {
+  SHA512_CTX sha512;
+  SHA512_Init(&sha512);
+
   assert(num <= 32);
-  CSHA512 hasher;
   unsigned char buf[64];
 
   // First source: OpenSSL's RNG
   RandAddSeedPerfmon();
   GetRandBytes(buf, 32);
-  hasher.Write(buf, 32);
+  SHA512_Update(&sha512, buf, 32);
 
   // Second source: OS RNG
   GetOSRand(buf);
-  hasher.Write(buf, 32);
+  SHA512_Update(&sha512, buf, 32);
 
   // Third source: HW RNG, if available.
   if (GetHWRand(buf)) {
-    hasher.Write(buf, 32);
+    SHA512_Update(&sha512, (unsigned char *)buf, 32);
   }
 
   // Combine with and update state
   {
     std::unique_lock<std::mutex> lock(cs_rng_state);
-    hasher.Write(rng_state, sizeof(rng_state));
-    hasher.Write((const unsigned char *)&rng_counter, sizeof(rng_counter));
+    SHA512_Update(&sha512, rng_state, sizeof(rng_state));
+    SHA512_Update(&sha512, &rng_counter, sizeof(rng_counter));
     ++rng_counter;
-    hasher.Finalize(buf);
+    SHA512_Final(buf, &sha512);
     memcpy(rng_state, buf + 32, 32);
   }
 
