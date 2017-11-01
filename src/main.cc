@@ -1,8 +1,10 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-#include "args.h"
 #include "base58.h"
+
+#include "args.h"
+#include "btcaddr.h"
 #include "ecdsa_key_man.h"
 
 /**
@@ -29,8 +31,11 @@ int main(int argc, const char *argv[]) {
   // Trying to generate a new key pair.
   auto &man = ecdsa::KeyManager::get_instance();
   auto key = man.NewKey();
+  auto pub_key = key.CalculatePublicKey(true);
+  auto addr = btc::Address::FromPublicKey(pub_key);
+  std::cout << "address: " << addr.ToString() << std::endl;
   std::cout << "public key: "
-            << base58::EncodeBase58(key.CalculatePublicKey(true)) << std::endl;
+            << base58::EncodeBase58(pub_key) << std::endl;
   std::cout << "private key: " << base58::EncodeBase58(key.get_key())
             << std::endl;
 
