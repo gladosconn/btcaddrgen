@@ -1,10 +1,11 @@
 # BTCAddr(esses)Gen(erator)
 
-I'm going to make a bitcoin address generate program/library.
+This is a Bitcoin Address Generator! You can use this tool to generate new bitcoin address offline, and import private key to your bitcoin wallet or publish the public key to other people to ask for bitcoin, That's very useful to making money right?
 
-You can import the generated private key to bitcoin wallet.
+If you like this program, please make a donation! `Bitcoin: 1KdmnoWbqHxqoER9ADLuw7FndRDsLJ33KZ`
 
-Yes, nothing more.
+* You can import the generated private key to bitcoin wallet.
+* I'm going to make an easy to use C++ library to generate bitcoin key and sign.
 
 # How to use?
 
@@ -16,6 +17,7 @@ Yes, nothing more.
 
 ## Compile
 
+* Clone source to your local disk `git clone https://github.com/gladosconn/btcaddrgen`
 * Run in console `mkdir build && cd build && cmake .. && make -j3`
 
 ## Run
