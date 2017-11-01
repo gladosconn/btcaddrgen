@@ -2,10 +2,11 @@
 #include <boost/program_options.hpp>
 
 #include "args.h"
+#include "ecdsa_key.h"
 
 /**
  * Show help document.
- * 
+ *
  * @param args The argument manager
  */
 void ShowHelp(const Args &args) {
@@ -23,5 +24,9 @@ int main(int argc, const char *argv[]) {
         ShowHelp(args);
         return 0;
     }
+
+    // Trying to generate a new key pair.
+    ECDSAKeyGenerator generator;
+    std::cout << "Private key: " << generator.get_private_key() << std::endl;
     return 0;
 }
