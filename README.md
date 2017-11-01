@@ -21,3 +21,11 @@ Yes, nothing more.
 
 * Run in console `build/btcaddrgen`
 * It will show the new address generated with private key (public key also displayed).
+
+## Sample
+
+```
+address: 1KdmnoWbqHxqoER9ADLuw7FndRDsLJ33KZ
+public key: mUFUkT1VsghGCwkTvPveybbv6PYVaDemEJuqWYjuHMKu
+private key: BPnJQQztyo4RrPERL7WL15h1pm1GzzcvHb5ZjhqGUhz6
+```
