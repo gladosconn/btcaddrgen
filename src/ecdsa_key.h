@@ -5,15 +5,24 @@
 
 typedef std::vector<std::uint8_t> KeyData;
 
-class ECDSAKey {
+namespace ecdsa {
+
+class KeyManager;
+
+class Key {
 public:
-  ECDSAKey();
+  explicit Key(KeyManager &key_man);
 
 private:
-  static bool VerifyKey(const KeyData &key);
+  bool VerifyKey(const KeyData &key);
+  void ECC_Start();
+  void ECC_Stop();
 
 private:
+  KeyManager &key_man_;
   KeyData key_;
 };
+
+} // namespace ecdsa
 
 #endif
