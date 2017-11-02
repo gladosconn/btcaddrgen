@@ -104,4 +104,4 @@ void GetOSRand(unsigned char *ent32) {
 
 void Rand_OS::Rand() { GetOSRand(buff_); }
 
-} // namespace rnd
+}  // namespace rnd

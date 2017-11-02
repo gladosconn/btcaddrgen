@@ -10,12 +10,12 @@ static inline int64_t GetPerformanceCounter() {
 #elif !defined(_MSC_VER) && defined(__i386__)
   uint64_t r = 0;
   __asm__ volatile("rdtsc"
-                   : "=A"(r)); // Constrain the r variable to the eax:edx pair.
+                   : "=A"(r));  // Constrain the r variable to the eax:edx pair.
   return r;
 #elif !defined(_MSC_VER) && (defined(__x86_64__) || defined(__amd64__))
   uint64_t r1 = 0, r2 = 0;
   __asm__ volatile("rdtsc"
-                   : "=a"(r1), "=d"(r2)); // Constrain r1 to rax and r2 to rdx.
+                   : "=a"(r1), "=d"(r2));  // Constrain r1 to rax and r2 to rdx.
   return (r2 << 32) | r1;
 #else
   // Fall back to using C++11 clock (usually microsecond or nanosecond
@@ -24,4 +24,4 @@ static inline int64_t GetPerformanceCounter() {
 #endif
 }
 
-} // namespace sysutils
+}  // namespace sysutils

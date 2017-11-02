@@ -70,4 +70,4 @@ Address Address::FromPublicKey(const ecdsa::KeyData &pub_key) {
   return addr;
 }
 
-} // namespace btc
+}  // namespace btc

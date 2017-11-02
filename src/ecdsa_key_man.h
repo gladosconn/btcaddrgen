@@ -8,7 +8,7 @@
 namespace ecdsa {
 
 class KeyManager {
-public:
+ public:
   static KeyManager &get_instance();
   ~KeyManager();
 
@@ -16,16 +16,16 @@ public:
 
   Key NewKey();
 
-private:
+ private:
   KeyManager();
 
   void ECC_Start();
   void ECC_Stop();
 
-private:
+ private:
   secp256k1_context *secp256k1_context_sign_ = nullptr;
 };
 
-} // namespace ecdsa
+}  // namespace ecdsa
 
 #endif

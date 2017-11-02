@@ -7,6 +7,6 @@ namespace sysutils {
 
 static inline int64_t GetPerformanceCounter();
 
-} // namespace sysutils
+}  // namespace sysutils
 
 #endif

@@ -50,4 +50,4 @@ void KeyManager::ECC_Stop() {
   }
 }
 
-} // namespace
+}  // namespace ecdsa

@@ -18,4 +18,4 @@ void RandManager::HashBuff(const uint8_t *buff, int size) {
   SHA512_Update(&sha_ctx_, buff, size);
 }
 
-} // namespace rnd
+}  // namespace rnd

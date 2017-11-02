@@ -10,7 +10,7 @@ typedef std::vector<std::uint8_t> KeyData;
 class KeyManager;
 
 class Key {
-public:
+ public:
   /**
    * Allocate Key object.
    *
@@ -25,17 +25,17 @@ public:
   /// Calculate public key.
   KeyData CalculatePublicKey(bool compressed) const;
 
-private:
+ private:
   bool VerifyKey(const KeyData &key);
   void ECC_Start();
   void ECC_Stop();
 
-private:
+ private:
   KeyManager &key_man_;
   KeyData key_;
   KeyData pub_key_;
 };
 
-} // namespace ecdsa
+}  // namespace ecdsa
 
 #endif

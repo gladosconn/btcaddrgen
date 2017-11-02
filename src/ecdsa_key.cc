@@ -48,4 +48,4 @@ bool Key::VerifyKey(const KeyData &key) {
   return secp256k1_ec_seckey_verify(key_man_.get_context_sign(), key.data());
 }
 
-} // namespace ecdsa
+}  // namespace ecdsa

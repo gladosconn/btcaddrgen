@@ -9,8 +9,9 @@ namespace rnd {
 
 int64_t GetPerformanceCounter();
 
-template <int BUFF_SIZE> class Rand_OpenSSL {
-public:
+template <int BUFF_SIZE>
+class Rand_OpenSSL {
+ public:
   Rand_OpenSSL() {
     memset(buff_, 0, BUFF_SIZE);
     int64_t counter = GetPerformanceCounter();
@@ -23,10 +24,10 @@ public:
 
   void Rand() { RAND_bytes(buff_, BUFF_SIZE); }
 
-private:
+ private:
   uint8_t buff_[BUFF_SIZE];
 };
 
-} // namespace rnd
+}  // namespace rnd
 
 #endif

@@ -15,6 +15,6 @@ std::string EncodeBase58(const std::vector<unsigned char> &vch);
 
 bool DecodeBase58(const std::string &str, std::vector<unsigned char> &vchRet);
 
-} // namespace base58
+}  // namespace base58
 
 #endif

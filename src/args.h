@@ -6,7 +6,7 @@ namespace po = boost::program_options;
 
 /// Argument manager.
 class Args {
-public:
+ public:
   /**
    * Initialize arguments.
    */
@@ -18,7 +18,7 @@ public:
   /// Get arguments description string.
   std::string GetArgsHelpString() const;
 
-private:
+ private:
   po::options_description opts_;
   bool is_help_ = false;
 };

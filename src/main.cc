@@ -34,8 +34,7 @@ int main(int argc, const char *argv[]) {
   auto pub_key = key.CalculatePublicKey(true);
   auto addr = btc::Address::FromPublicKey(pub_key);
   std::cout << "address: " << addr.ToString() << std::endl;
-  std::cout << "public key: "
-            << base58::EncodeBase58(pub_key) << std::endl;
+  std::cout << "public key: " << base58::EncodeBase58(pub_key) << std::endl;
   std::cout << "private key: " << base58::EncodeBase58(key.get_key())
             << std::endl;
 

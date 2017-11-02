@@ -12,7 +12,7 @@ namespace rnd {
  * Rand number manager
  */
 class RandManager {
-public:
+ public:
   /**
    * Constructor of RandManager
    *
@@ -27,7 +27,8 @@ public:
   std::vector<uint8_t> End();
 
   /// Rand with a rand operator.
-  template <typename RandOpt> void Rand() {
+  template <typename RandOpt>
+  void Rand() {
     // Create rand operator
     RandOpt rand;
     rand.Rand();
@@ -40,15 +41,15 @@ public:
     HashBuff(rnd_result, rnd_result_size);
   }
 
-private:
+ private:
   void HashBuff(const uint8_t *buff, int size);
 
-private:
+ private:
   int buff_size_;
   SHA512_CTX sha_ctx_;
   uint8_t md_[SHA512_DIGEST_LENGTH];
 };
 
-} // namespace rnd
+}  // namespace rnd
 
 #endif

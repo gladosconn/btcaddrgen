@@ -8,7 +8,7 @@
 namespace btc {
 
 class Address {
-public:
+ public:
   /**
    * Convert a public key to address.
    *
@@ -21,13 +21,13 @@ public:
   /// Convert address object to string
   std::string ToString() const { return addr_str_; }
 
-private:
+ private:
   Address() {}
 
-private:
+ private:
   std::string addr_str_;
 };
 
-} // namespace btc
+}  // namespace btc
 
 #endif
