@@ -4,7 +4,10 @@
 
 #include <vector>
 
-#include "randkey.h"
+//#include "randkey.h"
+#include "rnd_man.h"
+#include "rnd_openssl.h"
+#include "rnd_os.h"
 
 namespace ecdsa {
 
@@ -27,8 +30,10 @@ void KeyManager::ECC_Start() {
 
   {
     // Pass in a random blinding seed to the secp256k1 context.
-    std::vector<unsigned char> vseed(32);
-    rnd::GetRandBytes(vseed.data(), 32);
+    rnd::RandManager rnd_man(32);
+    rnd_man.Begin();
+    rnd_man.Rand<rnd::Rand_OS>();
+    std::vector<uint8_t> vseed = rnd_man.End();
     bool ret = secp256k1_context_randomize(ctx, vseed.data());
     assert(ret);
   }

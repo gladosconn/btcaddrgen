@@ -5,14 +5,25 @@
 #include "secp256k1.h"
 
 #include "ecdsa_key_man.h"
-#include "randkey.h"
+
+#include "rnd_man.h"
+#include "rnd_openssl.h"
+#include "rnd_os.h"
 
 namespace ecdsa {
 
+const unsigned int PRIVATE_KEY_STORE_SIZE = 32;
+const unsigned int PRIVATE_KEY_SIZE = 279;
+const unsigned int PUBLIC_KEY_SIZE = 65;
+const unsigned int SIGNATURE_SIZE = 72;
+
 Key::Key(KeyManager &key_man) : key_man_(key_man) {
-  key_.resize(32);
   do {
-    rnd::GetStrongRandBytes(key_.data(), key_.size());
+    rnd::RandManager rnd_man(PRIVATE_KEY_STORE_SIZE);
+    rnd_man.Begin();
+    rnd_man.Rand<rnd::Rand_OpenSSL<128>>();
+    rnd_man.Rand<rnd::Rand_OS>();
+    key_ = rnd_man.End();
   } while (!VerifyKey(key_));
 }
 

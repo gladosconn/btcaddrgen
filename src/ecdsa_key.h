@@ -9,10 +9,6 @@ typedef std::vector<std::uint8_t> KeyData;
 
 class KeyManager;
 
-const unsigned int PRIVATE_KEY_SIZE = 279;
-const unsigned int PUBLIC_KEY_SIZE = 65;
-const unsigned int SIGNATURE_SIZE = 72;
-
 class Key {
 public:
   /**
