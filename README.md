@@ -1,4 +1,6 @@
-# BTCAddr(esses)Gen(erator)
+# Introductiion
+
+**BTCAddr(esses)Gen(erator)**
 
 This is a Bitcoin Address Generator! You can use this tool to generate new bitcoin address offline, and import private key to your bitcoin wallet or publish your bitcoin address to other people to ask for bitcoin, That's very useful to making money right?
 
@@ -10,18 +12,19 @@ If you like this project, please make a donation! `1JGNGFj2grWC3Ac5zBZBME66YjFc6
 
 # How to use?
 
-I do not provide compiled binaries, you need compile source by following those steps below.
+I do not provide compiled binaries, you need compile sources by following those steps below.
 
 ## Requirements.
 
 * You need install library [secp256k1](https://github.com/bitcoin-core/secp256k1.git)`secp256k1`
 * You need install library OpenSSL
+* You need CMake to generate Makefile
 * You need a C++ compiler, gcc 4.7+ or clang 3+
 
 ## Compile
 
 * Clone source to your local disk `git clone https://github.com/gladosconn/btcaddrgen`
-* Run in console `mkdir build && cd build && cmake .. && make -j3`
+* Run in console `cd btcaddrgen && mkdir build && cd build && cmake .. && make -j3`
 
 ## Run
 
@@ -37,3 +40,8 @@ address: 1KdmnoWbqHxqoER9ADLuw7FndRDsLJ33KZ
 public key: mUFUkT1VsghGCwkTvPveybbv6PYVaDemEJuqWYjuHMKu
 private key: BPnJQQztyo4RrPERL7WL15h1pm1GzzcvHb5ZjhqGUhz6
 ```
+
+# Support?
+
+If you got problem, just fire an issue on [Issues page](https://github.com/gladosconn/btcaddrgen/issues), or drop an email to: gladosconn[at]gmail.com
+
