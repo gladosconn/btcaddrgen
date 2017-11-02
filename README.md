@@ -6,7 +6,7 @@ This is a Bitcoin Address Generator! You can use this tool to generate new bitco
 * I'm going to add a feature that allows user to make signature from any file or string.
 * I'm going to make an easy to use C++ library to generate bitcoin key pair and sign/verify data file etc.
 
-If you like this project, please make a donation! `1GRhq4EpFqXyLpwiZRw1oYDMwNoNBzFSBw`
+If you like this project, please make a donation! `1JGNGFj2grWC3Ac5zBZBME66YjFc6kZUFr`
 
 # How to use?
 
