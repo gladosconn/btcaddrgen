@@ -1,11 +1,14 @@
 #include "btcaddr.h"
 
+#include <stdlib.h>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
 
-#include "base58.h"
+#include <ecdsa/base58.h>
 
 namespace btc {
 
@@ -38,7 +41,7 @@ std::vector<uint8_t> ripemd160(const uint8_t *data, int len) {
   return md;
 }
 
-Address Address::FromPublicKey(const ecdsa::KeyData &pub_key) {
+Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key) {
   // 1. SHA256
   auto result = sha256(pub_key.data(), pub_key.size());
 
@@ -49,7 +52,7 @@ Address Address::FromPublicKey(const ecdsa::KeyData &pub_key) {
   std::vector<uint8_t> temp;
   temp.resize(result.size() + 1);
   temp[0] = 0x00;
-  memcpy(temp.data() + 1, result.data(), result.size());
+  std::memcpy(temp.data() + 1, result.data(), result.size());
   result = temp;
 
   // 4. SHA256 twice

@@ -7,8 +7,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 find_package(Boost REQUIRED program_options)
 find_package(OpenSSL REQUIRED)
-
-find_library(secp256k1 secp256k1)
+find_library(ECDSAXX ecdsa++)
 
 include_directories(
     "./"
@@ -19,4 +18,4 @@ file(GLOB src "./src/*.cc")
 
 add_executable(btcaddrgen ${src})
 
-target_link_libraries(btcaddrgen ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${secp256k1})
+target_link_libraries(btcaddrgen ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${ECDSAXX})
