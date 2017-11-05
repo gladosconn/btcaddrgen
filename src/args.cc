@@ -3,7 +3,11 @@
 #include <sstream>
 
 Args::Args(int argc, const char *argv[]) {
-  opts_.add_options()("help", "Show help document.");
+  opts_.add_options()
+    ("help", "Show help document.")
+    ("import_priv_key,p", po::value(&import_priv_key_), "Import private key.")
+    ("siging_file,s", po::value(&signing_file_), "Signing file.")
+    ;
 
   po::variables_map vars;
   po::store(po::parse_command_line(argc, argv, opts_), vars);
