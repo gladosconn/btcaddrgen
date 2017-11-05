@@ -4,7 +4,8 @@
 
 Args::Args(int argc, const char *argv[]) {
   opts_.add_options()
-    ("help", "Show help document.")
+    ("help,h", "Show help document.")
+    ("generate,g", "Request to generate new key pair.")
     ("import_priv_key,p", po::value(&import_priv_key_), "Import private key.")
     ("import_pub_key,u", po::value(&import_pub_key_), "Import public key.")
     ("siging_file,s", po::value(&signing_file_), "Signing file.")
@@ -18,6 +19,10 @@ Args::Args(int argc, const char *argv[]) {
 
   if (vars.count("help") > 0) {
     is_help_ = true;
+  }
+
+  if (vars.count("generate") > 0) {
+    is_generate_new_key_ = true;
   }
 }
 

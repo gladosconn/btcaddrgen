@@ -25,14 +25,13 @@ void ShowHelp(const Args &args) {
   std::cout << args.GetArgsHelpString() << std::endl;
 }
 
-std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
-    const std::string &file_str) {
-  std::vector<uint8_t> signature;
+std::tuple<std::vector<uint8_t>, bool> HashFile(const std::string &path) {
+  std::vector<uint8_t> md;
 
-  std::ifstream input(file_str, std::ios::binary);
+  std::ifstream input(path, std::ios::binary);
   if (!input.is_open()) {
-    std::cerr << "Cannot open file " << file_str << std::endl;
-    return std::make_tuple(signature, false);
+    std::cerr << "Cannot open file " << path << std::endl;
+    return std::make_tuple(md, false);
   }
 
   // Hash file contents
@@ -48,10 +47,23 @@ std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
   }
 
   // Get md buffer.
-  std::vector<uint8_t> md(SHA512_DIGEST_LENGTH);
+  md.resize(SHA512_DIGEST_LENGTH);
   SHA512_Final(md.data(), &ctx);
 
+  return std::make_tuple(md, true);
+}
+
+std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
+    const std::string &path) {
+  std::vector<uint8_t> signature;
+
+  std::vector<uint8_t> md;
   bool succ;
+  std::tie(md, succ) = HashFile(path);
+  if (!succ) {
+    return std::make_tuple(signature, false);
+  }
+
   std::tie(signature, succ) = pkey->Sign(md);
   if (!succ) {
     std::cerr << "Cannot signing file!" << std::endl;
@@ -61,12 +73,38 @@ std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
   return std::make_tuple(signature, true);
 }
 
+bool Verifying(const ecdsa::PubKey &pub_key,
+    const std::string &path, const std::vector<uint8_t> &signature) {
+  std::vector<uint8_t> md;
+  bool succ;
+  std::tie(md, succ) = HashFile(path);
+  if (succ) {
+    return pub_key.Verify(md, signature);
+  }
+  return false;
+}
+
+void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey) {
+  auto pub_key = pkey->CreatePubKey();
+  auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data());
+  std::cout << "Address: " << addr.ToString() << std::endl;
+  std::cout << "Public key: "
+    << base58::EncodeBase58(pkey->get_pub_key_data()) << std::endl;
+  std::cout << "Private key: "
+    << base58::EncodeBase58(pkey->get_priv_key_data()) << std::endl;
+}
+
 /// Main program.
 int main(int argc, const char *argv[]) {
   try {
     Args args(argc, argv);
     if (args.is_help()) {
       ShowHelp(args);
+      return 0;
+    }
+
+    if (args.is_generate_new_key()) {
+      ShowKeyInfo(std::make_shared<ecdsa::Key>());
       return 0;
     }
 
@@ -80,29 +118,48 @@ int main(int argc, const char *argv[]) {
         std::cerr << "Failed to decode base58!" << std::endl;
         return 1;
       }
-      pkey.reset(new ecdsa::Key(priv_key));
-    } else {
-      pkey.reset(new ecdsa::Key());
+      pkey = std::make_shared<ecdsa::Key>(priv_key);
+      ShowKeyInfo(pkey);
     }
-
-    auto pub_key = pkey->CreatePubKey();
-    auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data());
-    std::cout << "Address: " << addr.ToString() << std::endl;
-    std::cout << "Public key: "
-      << base58::EncodeBase58(pkey->get_pub_key_data())
-      << std::endl;
-    std::cout << "Private key: "
-      << base58::EncodeBase58(pkey->get_priv_key_data())
-      << std::endl;
 
     // Signing file?
     if (!args.get_signing_file().empty()) {
+      if (pkey == nullptr) {
+        pkey = std::make_shared<ecdsa::Key>();
+        ShowKeyInfo(pkey);
+      }
       std::vector<uint8_t> signature;
       bool succ;
       std::tie(signature, succ) = Signing(pkey, args.get_signing_file());
       if (succ) {
         std::string signature_b58 = base58::EncodeBase58(signature);
         std::cout << "Signature: " << signature_b58 << std::endl;
+        return 0;
+      }
+      return 1;
+    }
+
+    // Verifying
+    if (!args.get_import_pub_key().empty() && !args.get_verifying_file().empty()
+        && !args.get_signature().empty()) {
+      // Verifying
+      std::vector<uint8_t> pub_key_data;
+      bool succ = base58::DecodeBase58(args.get_import_pub_key(), pub_key_data);
+      if (!succ) {
+        std::cerr << "Cannot decode public key from base58 string."
+          << std::endl;
+        return 1;
+      }
+      std::vector<uint8_t> signature;
+      succ = base58::DecodeBase58(args.get_signature(), signature);
+      if (!succ) {
+        std::cerr << "Cannot decode signature from base58 string." << std::endl;
+        return 1;
+      }
+      ecdsa::PubKey pub_key(pub_key_data);
+      succ = Verifying(pub_key, args.get_verifying_file(), signature);
+      if (succ) {
+        std::cout << "Verified OK." << std::endl;
         return 0;
       }
       return 1;

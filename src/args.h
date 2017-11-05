@@ -15,6 +15,9 @@ class Args {
   /// --help is provided.
   bool is_help() const { return is_help_; }
 
+  /// --generate is provided.
+  bool is_generate_new_key() const { return is_generate_new_key_; }
+
   /// Returns import private key.
   std::string get_import_priv_key() const { return import_priv_key_; }
 
@@ -36,6 +39,7 @@ class Args {
  private:
   po::options_description opts_;
   bool is_help_ = false;
+  bool is_generate_new_key_ = false;
   std::string import_priv_key_;
   std::string import_pub_key_;
   std::string signing_file_;
