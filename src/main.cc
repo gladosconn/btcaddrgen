@@ -18,9 +18,11 @@
  * @param args The argument manager
  */
 void ShowHelp(const Args &args) {
-  std::cout << "BTCAddrGen version 0.1" << std::endl;
+  std::cout << "BTCAddr(ess)Gen(erator)" << std::endl
+    << "  An easy to use Bitcoin Address offline generator." << std::endl
+    << std::endl;
   std::cout << "Usage:" << std::endl;
-  std::cout << "  ./btcaddrgen" << std::endl << std::endl;
+  std::cout << "  ./btcaddrgen [arguments...]" << std::endl << std::endl;
   std::cout << "Arguments:" << std::endl;
   std::cout << args.GetArgsHelpString() << std::endl;
 }
