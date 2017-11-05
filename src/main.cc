@@ -25,6 +25,42 @@ void ShowHelp(const Args &args) {
   std::cout << args.GetArgsHelpString() << std::endl;
 }
 
+std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
+    const std::string &file_str) {
+  std::vector<uint8_t> signature;
+
+  std::ifstream input(file_str, std::ios::binary);
+  if (!input.is_open()) {
+    std::cerr << "Cannot open file " << file_str << std::endl;
+    return std::make_tuple(signature, false);
+  }
+
+  // Hash file contents
+  SHA512_CTX ctx;
+  SHA512_Init(&ctx);
+
+  // Reading...
+  char buff[BUFF_SIZE];
+  while (!input.eof()) {
+    input.read(buff, BUFF_SIZE);
+    size_t buff_size = input.gcount();
+    SHA512_Update(&ctx, buff, buff_size);
+  }
+
+  // Get md buffer.
+  std::vector<uint8_t> md(SHA512_DIGEST_LENGTH);
+  SHA512_Final(md.data(), &ctx);
+
+  bool succ;
+  std::tie(signature, succ) = pkey->Sign(md);
+  if (!succ) {
+    std::cerr << "Cannot signing file!" << std::endl;
+    return std::make_tuple(signature, false);
+  }
+
+  return std::make_tuple(signature, true);
+}
+
 /// Main program.
 int main(int argc, const char *argv[]) {
   try {
@@ -60,39 +96,16 @@ int main(int argc, const char *argv[]) {
       << std::endl;
 
     // Signing file?
-    std::string signing_file_str = args.get_signing_file();
-    if (!signing_file_str.empty()) {
-      std::ifstream input(signing_file_str, std::ios::binary);
-      if (!input.is_open()) {
-        std::cerr << "Cannot open file " << signing_file_str << std::endl;
-        return 1;
-      }
-
-      // Hash file contents
-      SHA512_CTX ctx;
-      SHA512_Init(&ctx);
-
-      // Reading...
-      char buff[BUFF_SIZE];
-      while (!input.eof()) {
-        input.read(buff, BUFF_SIZE);
-        size_t buff_size = input.gcount();
-        SHA512_Update(&ctx, buff, buff_size);
-      }
-
-      // Get md buffer.
-      std::vector<uint8_t> md(SHA512_DIGEST_LENGTH);
-      SHA512_Final(md.data(), &ctx);
-
-      std::vector<uint8_t> sign;
+    if (!args.get_signing_file().empty()) {
+      std::vector<uint8_t> signature;
       bool succ;
-      std::tie(sign, succ) = pkey->Sign(md);
-      if (!succ) {
-        std::cerr << "Cannot signing file!" << std::endl;
-        return 1;
+      std::tie(signature, succ) = Signing(pkey, args.get_signing_file());
+      if (succ) {
+        std::string signature_b58 = base58::EncodeBase58(signature);
+        std::cout << "Signature: " << signature_b58 << std::endl;
+        return 0;
       }
-
-      std::cout << "Sign: " << base58::EncodeBase58(sign) << std::endl;
+      return 1;
     }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
