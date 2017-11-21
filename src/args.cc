@@ -3,18 +3,18 @@
 #include <sstream>
 
 Args::Args(int argc, const char *argv[]) {
-  opts_.add_options()
-    ("help,h", "Show help document.")
-    ("generate,g", "Request to generate new key pair.")
-    ("import_priv_key,p", po::value(&import_priv_key_),
-     "Import base58 string as a private key.")
-    ("import_pub_key,u", po::value(&import_pub_key_),
-     "Import base58 string as a public key.")
-    ("siging_file,s", po::value(&signing_file_), "Signing file.")
-    ("verifying_file,v", po::value(&verifying_file_), "Verifying file.")
-    ("signature,i", po::value(&signature_),
-     "Import base58 string as signature.")
-    ;
+  opts_.add_options()("help,h", "Show help document.")     // --help
+      ("generate,g", "Request to generate new key pair.")  // -g
+      ("import_priv_key,p", po::value(&import_priv_key_),
+       "Import base58 string as a private key.")  // -p
+      ("import_pub_key,u", po::value(&import_pub_key_),
+       "Import base58 string as a public key.")                      // -u
+      ("siging_file,s", po::value(&signing_file_), "Signing file.")  // -s
+      ("verifying_file,v", po::value(&verifying_file_),
+       "Verifying file.")  // -v
+      ("signature,i", po::value(&signature_),
+       "Import base58 string as signature.")  // -i
+      ;
 
   po::variables_map vars;
   po::store(po::parse_command_line(argc, argv, opts_), vars);
