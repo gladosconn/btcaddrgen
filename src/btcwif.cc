@@ -41,7 +41,7 @@ std::vector<uint8_t> WifToPrivateKey(const std::string &priv_key_str) {
 
   // 2. Calculate size.
   size_t size;
-  size_t add_index = pk1.size() - 4;
+  size_t add_index = pk1.size() - 5;
   if (pk1[add_index] == 0x01) {
     size = pk1.size() - 6;
   } else {
@@ -67,7 +67,7 @@ bool VerifyWifString(const std::string &priv_key_str) {
 
   std::vector<uint8_t> priv_key_data_to_hash(priv_key_data.size() - 4);
   memcpy(priv_key_data_to_hash.data(), priv_key_data.data(),
-         priv_key_data.size());
+         priv_key_data_to_hash.size());
 
   std::vector<uint8_t> check_sum_half =
       utils::sha256(priv_key_data_to_hash.data(), priv_key_data_to_hash.size());
