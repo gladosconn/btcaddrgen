@@ -10,43 +10,16 @@
 
 #include <ecdsa/base58.h>
 
+#include "utils.h"
+
 namespace btc {
-
-std::vector<uint8_t> sha256(const uint8_t *data, int len) {
-  // Prepare output data
-  std::vector<uint8_t> md;
-  md.resize(SHA256_DIGEST_LENGTH);
-
-  // Calculate SHA256
-  SHA256_CTX ctx;
-  SHA256_Init(&ctx);
-  SHA256_Update(&ctx, data, len);
-  SHA256_Final(md.data(), &ctx);
-
-  // Returns
-  return md;
-}
-
-std::vector<uint8_t> ripemd160(const uint8_t *data, int len) {
-  // Prepare output data
-  std::vector<uint8_t> md;
-  md.resize(RIPEMD160_DIGEST_LENGTH);
-
-  // Calculate RIPEMD160
-  RIPEMD160_CTX ctx;
-  RIPEMD160_Init(&ctx);
-  RIPEMD160_Update(&ctx, data, len);
-  RIPEMD160_Final(md.data(), &ctx);
-
-  return md;
-}
 
 Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key) {
   // 1. SHA256
-  auto result = sha256(pub_key.data(), pub_key.size());
+  auto result = utils::sha256(pub_key.data(), pub_key.size());
 
   // 2. RIPEMD160
-  result = ripemd160(result.data(), result.size());
+  result = utils::ripemd160(result.data(), result.size());
 
   // 3. Add 0x00 on front
   std::vector<uint8_t> temp;
@@ -56,8 +29,8 @@ Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key) {
   result = temp;
 
   // 4. SHA256 twice
-  result = sha256(result.data(), result.size());
-  result = sha256(result.data(), result.size());
+  result = utils::sha256(result.data(), result.size());
+  result = utils::sha256(result.data(), result.size());
 
   // 5. Take first 4 bytes only and add to temp
   std::vector<uint8_t> long_result;
