@@ -174,7 +174,9 @@ int main(int argc, const char *argv[]) {
       return 1;
     }
 
-    std::cerr << "No argument, -h to show help." << std::endl;
+    if (priv_key_b58.empty()) {
+      std::cerr << "No argument, -h to show help." << std::endl;
+    }
     return 1;
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
