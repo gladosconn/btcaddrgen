@@ -1,4 +1,6 @@
-# Introductiion
+# (WARNING: Do not use this program to generate bitcoin address, currently has some bug and the private key is not correct!)
+
+# Introduction
 
 **BTCAddr(esses)Gen(erator)**
 
