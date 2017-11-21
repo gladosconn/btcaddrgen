@@ -122,10 +122,17 @@ int main(int argc, const char *argv[]) {
     std::string priv_key_b58 = args.get_import_priv_key();
     if (!priv_key_b58.empty()) {
       std::vector<uint8_t> priv_key;
-      bool succ = base58::DecodeBase58(priv_key_b58.c_str(), priv_key);
-      if (!succ) {
-        std::cerr << "Failed to decode base58!" << std::endl;
-        return 1;
+      // Checking WIF format.
+      if (btc::wif::VerifyWifString(priv_key_b58)) {
+        // Decoding private key in WIF format.
+        priv_key = btc::wif::WifToPrivateKey(priv_key_b58);
+      } else {
+        // Decoding private key in plain base58 data.
+        bool succ = base58::DecodeBase58(priv_key_b58.c_str(), priv_key);
+        if (!succ) {
+          std::cerr << "Failed to decode base58!" << std::endl;
+          return 1;
+        }
       }
       pkey = std::make_shared<ecdsa::Key>(priv_key);
       ShowKeyInfo(pkey);
