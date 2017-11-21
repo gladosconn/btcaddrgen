@@ -58,7 +58,8 @@ std::vector<uint8_t> WifToPrivateKey(const std::string &priv_key_str) {
 
 bool VerifyWifString(const std::string &priv_key_str) {
   std::vector<uint8_t> priv_key_data;
-  assert(base58::DecodeBase58(priv_key_str, priv_key_data));
+  bool succ = base58::DecodeBase58(priv_key_str, priv_key_data);
+  if (!succ) return false;
 
   std::vector<uint8_t> last_4_bytes(4);
   memcpy(last_4_bytes.data(), priv_key_data.data() + (priv_key_data.size() - 4), 4);
