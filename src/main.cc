@@ -1,6 +1,8 @@
+#include <fstream>
 #include <iostream>
 #include <memory>
-#include <fstream>
+#include <tuple>
+#include <vector>
 
 #include <openssl/sha.h>
 
@@ -9,6 +11,7 @@
 
 #include "args.h"
 #include "btcaddr.h"
+#include "btcwif.h"
 
 #define BUFF_SIZE 1024
 
@@ -19,8 +22,9 @@
  */
 void ShowHelp(const Args &args) {
   std::cout << "BTCAddr(ess)Gen(erator)" << std::endl
-    << "  An easy to use Bitcoin Address offline generator." << std::endl
-    << std::endl;
+            << "  An easy to use Bitcoin Address offline generator."
+            << std::endl
+            << std::endl;
   std::cout << "Usage:" << std::endl;
   std::cout << "  ./btcaddrgen [arguments...]" << std::endl << std::endl;
   std::cout << "Arguments:" << std::endl;
@@ -56,7 +60,7 @@ std::tuple<std::vector<uint8_t>, bool> HashFile(const std::string &path) {
 }
 
 std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
-    const std::string &path) {
+                                               const std::string &path) {
   std::vector<uint8_t> signature;
 
   std::vector<uint8_t> md;
@@ -75,8 +79,8 @@ std::tuple<std::vector<uint8_t>, bool> Signing(std::shared_ptr<ecdsa::Key> pkey,
   return std::make_tuple(signature, true);
 }
 
-bool Verifying(const ecdsa::PubKey &pub_key,
-    const std::string &path, const std::vector<uint8_t> &signature) {
+bool Verifying(const ecdsa::PubKey &pub_key, const std::string &path,
+               const std::vector<uint8_t> &signature) {
   std::vector<uint8_t> md;
   bool succ;
   std::tie(md, succ) = HashFile(path);
@@ -90,10 +94,13 @@ void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey) {
   auto pub_key = pkey->CreatePubKey();
   auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data());
   std::cout << "Address: " << addr.ToString() << std::endl;
-  std::cout << "Public key: "
-    << base58::EncodeBase58(pkey->get_pub_key_data()) << std::endl;
+  std::cout << "Public key: " << base58::EncodeBase58(pkey->get_pub_key_data())
+            << std::endl;
   std::cout << "Private key: "
-    << base58::EncodeBase58(pkey->get_priv_key_data()) << std::endl;
+            << base58::EncodeBase58(pkey->get_priv_key_data()) << std::endl;
+  std::cout << "Private key(WIF): "
+            << btc::wif::PrivateKeyToWif(pkey->get_priv_key_data())
+            << std::endl;
 }
 
 /// Main program.
@@ -142,14 +149,14 @@ int main(int argc, const char *argv[]) {
     }
 
     // Verifying
-    if (!args.get_import_pub_key().empty() && !args.get_verifying_file().empty()
-        && !args.get_signature().empty()) {
+    if (!args.get_import_pub_key().empty() &&
+        !args.get_verifying_file().empty() && !args.get_signature().empty()) {
       // Verifying
       std::vector<uint8_t> pub_key_data;
       bool succ = base58::DecodeBase58(args.get_import_pub_key(), pub_key_data);
       if (!succ) {
         std::cerr << "Cannot decode public key from base58 string."
-          << std::endl;
+                  << std::endl;
         return 1;
       }
       std::vector<uint8_t> signature;

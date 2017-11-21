@@ -7,8 +7,8 @@
 This is a Bitcoin Address Generator! You can use this tool to generate new bitcoin address offline, and import private key to your bitcoin wallet or publish your bitcoin address to other people to ask for bitcoin, That's very useful to making money right?
 
 * You can import the generated private key to bitcoin wallet.
-* I'm going to add a feature that allows user to make signature from any file or string.
-* I'm going to make an easy to use C++ library to generate bitcoin key pair and sign/verify data file etc.
+* You can make signature for your file by provide/generate a private key.
+* This program is depend on **ECDSA++**, it's a very useful C++ library to help you build a program working with ECDSA algorithm.
 
 If you like this project, please make a donation! `1JGNGFj2grWC3Ac5zBZBME66YjFc6kZUFr`
 
@@ -30,8 +30,56 @@ I do not provide compiled binaries, you need compile sources by following those 
 
 ## Run
 
-* Run in console `build/btcaddrgen`
-* It will show the new address generated with private key (public key also displayed).
+### Generate a new key pair.
+
+Generate a new key pair means you get a new bitcoin address with private key. There are two way to generate it.
+
+1. Use `-g` parameter to generate a new key pair.
+
+Just simply run program with `-g` parameter like below to generate a new key pair with bitcoin address displayed.
+```
+./btcaddrgen -g
+```
+
+2. Signing a file without import a private key will generate a new key pair automatically.
+
+You can signing file by using `-s` parameter without providing a private key (parameter: `-p`), generator will generate a new key pair for you to signing your file and show to you.
+
+```
+./btcaddrgen -s [Your file to signing]
+```
+
+### Get bitcoin address from a private key.
+
+You only need to save your private key after your bitcoin address generated, provide private key is easy to calculate your bitcoin address also the public key. Use parameter `-p` to import your private key, program will show the public key and bitcoin address to the screen.
+
+```
+./btcaddrgen -p [Private key in base58 format]
+```
+
+### Signing file.
+
+Signing a file allows you make a signature for a file with your private key, other people will be able to verify your signature to ensure it is signed by you.
+
+Provide your file path with `-s` and also you can provide existing private key to make signature. If no private key provide, program will generate a new key pair for you.
+
+```
+./btcaddrgen -s [Your file to signing] -p [Your private key in base58 format]
+```
+
+### Verifying a signature.
+
+To verifying a signature, you need
+
+1. Public key provide in base58 format
+2. Signature in base58 format
+3. Data file
+
+Public key is provided by the signature owner, owner make a signature from data file with private key and provide public key, signature to prove the data file is sent by him/her. You verifying the signature with public key to the data file to ensure it. The command below to show you how to verify.
+
+```
+./btcaddrgen -v [Data file path] -u [Public key in base58 format] -i [Signature in base58 format]
+```
 
 ## Sample
 
@@ -46,4 +94,3 @@ private key: BPnJQQztyo4RrPERL7WL15h1pm1GzzcvHb5ZjhqGUhz6
 # Support?
 
 If you got problem, just fire an issue on [Issues page](https://github.com/gladosconn/btcaddrgen/issues), or drop an email to: gladosconn[at]gmail.com
-
