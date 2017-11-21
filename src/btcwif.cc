@@ -56,5 +56,21 @@ std::vector<uint8_t> WifToPrivateKey(const std::string &priv_key_str) {
   return pk2;
 }
 
+bool VerifyWifString(const std::string &priv_key_str) {
+  std::vector<uint8_t> priv_key_data;
+  assert(base58::DecodeBase58(priv_key_str, priv_key_data));
+
+  std::vector<uint8_t> last_4_bytes(4);
+  memcpy(last_4_bytes.data(), priv_key_data.data() + (priv_key_data.size() - 4), 4);
+
+  std::vector<uint8_t> priv_key_data_to_hash(priv_key_data.size() - 4);
+  memcpy(priv_key_data_to_hash.data(), priv_key_data.data(), priv_key_data.size());
+
+  std::vector<uint8_t> check_sum_half = utils::sha256(priv_key_data_to_hash.data(), priv_key_data_to_hash.size());
+  std::vector<uint8_t> check_sum = utils::sha256(check_sum_half.data(), check_sum_half.size());
+
+  return memcmp(check_sum.data(), last_4_bytes.data(), 4) == 0;
+}
+
 }  // namespace wif
 }  // namespace btc
