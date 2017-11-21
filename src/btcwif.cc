@@ -49,7 +49,7 @@ std::vector<uint8_t> WifToPrivateKey(const std::string &priv_key_str) {
   }
 
   // 3. Remove first 1 byte, last 4 byte(s) and
-  // last 1 byte if it equals to 0x01.
+  //   last 1 byte if it equals to 0x01.
   std::vector<uint8_t> pk2(size);
   memcpy(pk2.data(), pk1.data() + 1, size);
 
