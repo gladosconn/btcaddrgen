@@ -1,6 +1,8 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <tuple>
 #include <vector>
 
@@ -90,10 +92,22 @@ bool Verifying(const ecdsa::PubKey &pub_key, const std::string &path,
   return false;
 }
 
-void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey) {
+std::string BinaryToHexString(const unsigned char *bin_data, size_t size) {
+  std::stringstream ss_hex;
+  for (unsigned int i = 0; i < size; ++i) {
+    ss_hex << std::hex << std::setw(2) << std::setfill('0')
+           << static_cast<int>(bin_data[i]);
+  }
+  return ss_hex.str();
+}
+
+void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey, unsigned char prefix_char) {
   auto pub_key = pkey->CreatePubKey();
-  auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data());
+  unsigned char hash160[20];
+  auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data(),
+                                          prefix_char, hash160);
   std::cout << "Address: " << addr.ToString() << std::endl;
+  std::cout << "Hash160: " << BinaryToHexString(hash160, 20) << std::endl;
   std::cout << "Public key: " << base58::EncodeBase58(pkey->get_pub_key_data())
             << std::endl;
   std::cout << "Private key: "
@@ -113,7 +127,7 @@ int main(int argc, const char *argv[]) {
     }
 
     if (args.is_generate_new_key()) {
-      ShowKeyInfo(std::make_shared<ecdsa::Key>());
+      ShowKeyInfo(std::make_shared<ecdsa::Key>(), args.get_prefix_char());
       return 0;
     }
 
@@ -135,14 +149,14 @@ int main(int argc, const char *argv[]) {
         }
       }
       pkey = std::make_shared<ecdsa::Key>(priv_key);
-      ShowKeyInfo(pkey);
+      ShowKeyInfo(pkey, args.get_prefix_char());
     }
 
     // Signing file?
     if (!args.get_signing_file().empty()) {
       if (pkey == nullptr) {
         pkey = std::make_shared<ecdsa::Key>();
-        ShowKeyInfo(pkey);
+        ShowKeyInfo(pkey, args.get_prefix_char());
       }
       std::vector<uint8_t> signature;
       bool succ;
