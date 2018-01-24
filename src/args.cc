@@ -14,6 +14,8 @@ Args::Args(int argc, const char *argv[]) {
        "Verifying file.")  // -v
       ("signature,i", po::value(&signature_),
        "Import base58 string as signature.")  // -i
+      ("char,c", po::value(&prefix_char_)->default_value(0),
+       "Prefix byte for address generation.")  // -c
       ;
 
   po::variables_map vars;

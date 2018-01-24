@@ -33,6 +33,9 @@ class Args {
   /// Get signature for verifying.
   std::string get_signature() const { return signature_; }
 
+  /// Prefix character.
+  unsigned char get_prefix_char() const { return (unsigned char)prefix_char_; }
+
   /// Get arguments description string.
   std::string GetArgsHelpString() const;
 
@@ -45,6 +48,7 @@ class Args {
   std::string signing_file_;
   std::string verifying_file_;
   std::string signature_;
+  int prefix_char_;
 };
 
 #endif
