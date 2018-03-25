@@ -96,7 +96,7 @@ bool Verifying(const ecdsa::PubKey &pub_key, const std::string &path,
 
 std::string BinaryToHexString(const unsigned char *bin_data, size_t size) {
   std::stringstream ss_hex;
-  for (unsigned int i = size - 1; i > 0; --i) {
+  for (int i = size - 1; i >= 0; --i) {
     ss_hex << std::hex << std::setw(2) << std::setfill('0')
            << static_cast<int>(bin_data[i]);
   }
@@ -117,6 +117,10 @@ void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey, unsigned char prefix_char) {
   std::cout << "Private key(WIF): "
             << btc::wif::PrivateKeyToWif(pkey->get_priv_key_data())
             << std::endl;
+  std::cout << "Private key(HEX): "
+            << BinaryToHexString(pkey->get_priv_key_data().data(),
+                                 pkey->get_priv_key_data().size())
+            << std::endl;
 }
 
 bool ImportFromHexString(const std::string &hex_str,
@@ -127,13 +131,13 @@ bool ImportFromHexString(const std::string &hex_str,
   }
   int size = len / 2;
   out_data.resize(size);
-  for (int i = size; i > 0; --i) {
+  for (int i = 0; i < size; ++i) {
     std::string hex1 = hex_str.substr(i * 2, 2);
     std::stringstream hex_ss;
     int val;
     hex_ss << std::hex << hex1;
     hex_ss >> val;
-    out_data[i] = val;
+    out_data[size - i - 1] = val;
   }
   return true;
 }
