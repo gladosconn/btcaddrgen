@@ -94,11 +94,21 @@ bool Verifying(const ecdsa::PubKey &pub_key, const std::string &path,
   return false;
 }
 
-std::string BinaryToHexString(const unsigned char *bin_data, size_t size) {
+std::string BinaryToHexString(const unsigned char *bin_data, size_t size,
+                              bool is_little_endian) {
   std::stringstream ss_hex;
-  for (int i = size - 1; i >= 0; --i) {
-    ss_hex << std::hex << std::setw(2) << std::setfill('0')
-           << static_cast<int>(bin_data[i]);
+  if (is_little_endian) {
+    // Little-endian
+    for (int i = size - 1; i >= 0; --i) {
+      ss_hex << std::hex << std::setw(2) << std::setfill('0')
+             << static_cast<int>(bin_data[i]);
+    }
+  } else {
+    // Normal binary buffer.
+    for (int i = 0; i < size; ++i) {
+      ss_hex << std::hex << std::setw(2) << std::setfill('0')
+             << static_cast<int>(bin_data[i]);
+    }
   }
   return ss_hex.str();
 }
@@ -109,7 +119,10 @@ void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey, unsigned char prefix_char) {
   auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data(),
                                           prefix_char, hash160);
   std::cout << "Address: " << addr.ToString() << std::endl;
-  std::cout << "Hash160: " << BinaryToHexString(hash160, 20) << std::endl;
+  std::cout << "Hash160(Little-endian): "
+            << BinaryToHexString(hash160, 20, true) << std::endl;
+  std::cout << "Hash160: " << BinaryToHexString(hash160, 20, false)
+            << std::endl;
   std::cout << "Public key: " << base58::EncodeBase58(pkey->get_pub_key_data())
             << std::endl;
   std::cout << "Private key: "
@@ -119,7 +132,7 @@ void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey, unsigned char prefix_char) {
             << std::endl;
   std::cout << "Private key(HEX): "
             << BinaryToHexString(pkey->get_priv_key_data().data(),
-                                 pkey->get_priv_key_data().size())
+                                 pkey->get_priv_key_data().size(), true)
             << std::endl;
 }
 
