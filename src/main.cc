@@ -94,7 +94,7 @@ bool Verifying(const ecdsa::PubKey &pub_key, const std::string &path,
 
 std::string BinaryToHexString(const unsigned char *bin_data, size_t size) {
   std::stringstream ss_hex;
-  for (unsigned int i = 0; i < size; ++i) {
+  for (unsigned int i = size - 1; i > 0; --i) {
     ss_hex << std::hex << std::setw(2) << std::setfill('0')
            << static_cast<int>(bin_data[i]);
   }
