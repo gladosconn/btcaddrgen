@@ -18,6 +18,9 @@ class Args {
   /// --generate is provided.
   bool is_generate_new_key() const { return is_generate_new_key_; }
 
+  /// --hex
+  bool is_hex() const { return is_hex_; }
+
   /// Returns import private key.
   std::string get_import_priv_key() const { return import_priv_key_; }
 
@@ -43,6 +46,7 @@ class Args {
   po::options_description opts_;
   bool is_help_ = false;
   bool is_generate_new_key_ = false;
+  bool is_hex_ = false;
   std::string import_priv_key_;
   std::string import_pub_key_;
   std::string signing_file_;

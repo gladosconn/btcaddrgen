@@ -15,7 +15,8 @@ Args::Args(int argc, const char *argv[]) {
       ("signature,i", po::value(&signature_),
        "Import base58 string as signature.")  // -i
       ("char,c", po::value(&prefix_char_)->default_value(0),
-       "Prefix byte for address generation.")  // -c
+       "Prefix byte for address generation.")         // -c
+      ("hex", "All input key format in hex format.")  // --hex
       ;
 
   po::variables_map vars;
@@ -28,6 +29,10 @@ Args::Args(int argc, const char *argv[]) {
 
   if (vars.count("generate") > 0) {
     is_generate_new_key_ = true;
+  }
+
+  if (vars.count("hex") > 0) {
+    is_hex_ = true;
   }
 }
 
