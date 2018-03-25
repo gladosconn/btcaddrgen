@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -117,6 +119,25 @@ void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey, unsigned char prefix_char) {
             << std::endl;
 }
 
+bool ImportFromHexString(const std::string &hex_str,
+                         std::vector<uint8_t> &out_data) {
+  int len = hex_str.size();
+  if (len % 2 != 0) {
+    return false;
+  }
+  int size = len / 2;
+  out_data.resize(size);
+  for (int i = size; i > 0; --i) {
+    std::string hex1 = hex_str.substr(i * 2, 2);
+    std::stringstream hex_ss;
+    int val;
+    hex_ss << std::hex << hex1;
+    hex_ss >> val;
+    out_data[i] = val;
+  }
+  return true;
+}
+
 /// Main program.
 int main(int argc, const char *argv[]) {
   try {
@@ -142,7 +163,12 @@ int main(int argc, const char *argv[]) {
         priv_key = btc::wif::WifToPrivateKey(priv_key_b58);
       } else {
         // Decoding private key in plain base58 data.
-        bool succ = base58::DecodeBase58(priv_key_b58.c_str(), priv_key);
+        bool succ;
+        if (args.is_hex()) {
+          succ = ImportFromHexString(priv_key_b58, priv_key);
+        } else {
+          succ = base58::DecodeBase58(priv_key_b58.c_str(), priv_key);
+        }
         if (!succ) {
           std::cerr << "Failed to decode base58!" << std::endl;
           return 1;
@@ -174,14 +200,23 @@ int main(int argc, const char *argv[]) {
         !args.get_verifying_file().empty() && !args.get_signature().empty()) {
       // Verifying
       std::vector<uint8_t> pub_key_data;
-      bool succ = base58::DecodeBase58(args.get_import_pub_key(), pub_key_data);
+      bool succ;
+      if (args.is_hex()) {
+        succ = ImportFromHexString(args.get_import_pub_key(), pub_key_data);
+      } else {
+        succ = base58::DecodeBase58(args.get_import_pub_key(), pub_key_data);
+      }
       if (!succ) {
         std::cerr << "Cannot decode public key from base58 string."
                   << std::endl;
         return 1;
       }
       std::vector<uint8_t> signature;
-      succ = base58::DecodeBase58(args.get_signature(), signature);
+      if (args.is_hex()) {
+        succ = ImportFromHexString(args.get_signature(), signature);
+      } else {
+        succ = base58::DecodeBase58(args.get_signature(), signature);
+      }
       if (!succ) {
         std::cerr << "Cannot decode signature from base58 string." << std::endl;
         return 1;
