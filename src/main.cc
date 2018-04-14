@@ -1,6 +1,10 @@
+#include <cstdint>
+
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <tuple>
 #include <vector>
 
@@ -90,10 +94,35 @@ bool Verifying(const ecdsa::PubKey &pub_key, const std::string &path,
   return false;
 }
 
-void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey) {
+std::string BinaryToHexString(const unsigned char *bin_data, size_t size,
+                              bool is_little_endian) {
+  std::stringstream ss_hex;
+  if (is_little_endian) {
+    // Little-endian
+    for (int i = size - 1; i >= 0; --i) {
+      ss_hex << std::hex << std::setw(2) << std::setfill('0')
+             << static_cast<int>(bin_data[i]);
+    }
+  } else {
+    // Normal binary buffer.
+    for (int i = 0; i < size; ++i) {
+      ss_hex << std::hex << std::setw(2) << std::setfill('0')
+             << static_cast<int>(bin_data[i]);
+    }
+  }
+  return ss_hex.str();
+}
+
+void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey, unsigned char prefix_char) {
   auto pub_key = pkey->CreatePubKey();
-  auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data());
+  unsigned char hash160[20];
+  auto addr = btc::Address::FromPublicKey(pub_key.get_pub_key_data(),
+                                          prefix_char, hash160);
   std::cout << "Address: " << addr.ToString() << std::endl;
+  std::cout << "Hash160(Little-endian): "
+            << BinaryToHexString(hash160, 20, true) << std::endl;
+  std::cout << "Hash160: " << BinaryToHexString(hash160, 20, false)
+            << std::endl;
   std::cout << "Public key: " << base58::EncodeBase58(pkey->get_pub_key_data())
             << std::endl;
   std::cout << "Private key: "
@@ -101,6 +130,29 @@ void ShowKeyInfo(std::shared_ptr<ecdsa::Key> pkey) {
   std::cout << "Private key(WIF): "
             << btc::wif::PrivateKeyToWif(pkey->get_priv_key_data())
             << std::endl;
+  std::cout << "Private key(HEX): "
+            << BinaryToHexString(pkey->get_priv_key_data().data(),
+                                 pkey->get_priv_key_data().size(), true)
+            << std::endl;
+}
+
+bool ImportFromHexString(const std::string &hex_str,
+                         std::vector<uint8_t> &out_data) {
+  int len = hex_str.size();
+  if (len % 2 != 0) {
+    return false;
+  }
+  int size = len / 2;
+  out_data.resize(size);
+  for (int i = 0; i < size; ++i) {
+    std::string hex1 = hex_str.substr(i * 2, 2);
+    std::stringstream hex_ss;
+    int val;
+    hex_ss << std::hex << hex1;
+    hex_ss >> val;
+    out_data[size - i - 1] = val;
+  }
+  return true;
 }
 
 /// Main program.
@@ -113,7 +165,7 @@ int main(int argc, const char *argv[]) {
     }
 
     if (args.is_generate_new_key()) {
-      ShowKeyInfo(std::make_shared<ecdsa::Key>());
+      ShowKeyInfo(std::make_shared<ecdsa::Key>(), args.get_prefix_char());
       return 0;
     }
 
@@ -128,21 +180,26 @@ int main(int argc, const char *argv[]) {
         priv_key = btc::wif::WifToPrivateKey(priv_key_b58);
       } else {
         // Decoding private key in plain base58 data.
-        bool succ = base58::DecodeBase58(priv_key_b58.c_str(), priv_key);
+        bool succ;
+        if (args.is_hex()) {
+          succ = ImportFromHexString(priv_key_b58, priv_key);
+        } else {
+          succ = base58::DecodeBase58(priv_key_b58.c_str(), priv_key);
+        }
         if (!succ) {
           std::cerr << "Failed to decode base58!" << std::endl;
           return 1;
         }
       }
       pkey = std::make_shared<ecdsa::Key>(priv_key);
-      ShowKeyInfo(pkey);
+      ShowKeyInfo(pkey, args.get_prefix_char());
     }
 
     // Signing file?
     if (!args.get_signing_file().empty()) {
       if (pkey == nullptr) {
         pkey = std::make_shared<ecdsa::Key>();
-        ShowKeyInfo(pkey);
+        ShowKeyInfo(pkey, args.get_prefix_char());
       }
       std::vector<uint8_t> signature;
       bool succ;
@@ -160,14 +217,23 @@ int main(int argc, const char *argv[]) {
         !args.get_verifying_file().empty() && !args.get_signature().empty()) {
       // Verifying
       std::vector<uint8_t> pub_key_data;
-      bool succ = base58::DecodeBase58(args.get_import_pub_key(), pub_key_data);
+      bool succ;
+      if (args.is_hex()) {
+        succ = ImportFromHexString(args.get_import_pub_key(), pub_key_data);
+      } else {
+        succ = base58::DecodeBase58(args.get_import_pub_key(), pub_key_data);
+      }
       if (!succ) {
         std::cerr << "Cannot decode public key from base58 string."
                   << std::endl;
         return 1;
       }
       std::vector<uint8_t> signature;
-      succ = base58::DecodeBase58(args.get_signature(), signature);
+      if (args.is_hex()) {
+        succ = ImportFromHexString(args.get_signature(), signature);
+      } else {
+        succ = base58::DecodeBase58(args.get_signature(), signature);
+      }
       if (!succ) {
         std::cerr << "Cannot decode signature from base58 string." << std::endl;
         return 1;

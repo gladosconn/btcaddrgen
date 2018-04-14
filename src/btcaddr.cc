@@ -14,7 +14,9 @@
 
 namespace btc {
 
-Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key) {
+Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key,
+                               unsigned char prefix_char,
+                               unsigned char *out_hash160) {
   // 1. SHA256
   auto result = utils::sha256(pub_key.data(), pub_key.size());
 
@@ -24,7 +26,7 @@ Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key) {
   // 3. Add 0x00 on front
   std::vector<uint8_t> temp;
   temp.resize(result.size() + 1);
-  temp[0] = 0x00;
+  temp[0] = prefix_char;
   std::memcpy(temp.data() + 1, result.data(), result.size());
   result = temp;
 
@@ -37,6 +39,11 @@ Address Address::FromPublicKey(const std::vector<uint8_t> &pub_key) {
   long_result.resize(temp.size() + 4);
   memcpy(long_result.data(), temp.data(), temp.size());
   memcpy(long_result.data() + temp.size(), result.data(), 4);
+
+  // Copying hash160 if required.
+  if (out_hash160) {
+      memcpy(out_hash160, long_result.data() + 1, 20);
+  }
 
   // 6. Base58
   Address addr;
